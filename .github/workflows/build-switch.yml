@@ -1,0 +1,47 @@
+name: Switch NVK build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+
+    steps:
+      - name: Checkout re4-switch
+        uses: actions/checkout@v4
+
+      - name: Install host tools
+        run: |
+          apt-get update
+          apt-get install -y git ca-certificates
+
+      - name: Clone switch-nvk
+        run: |
+          git clone --depth 1 https://github.com/HayatoG/switch-nvk.git external/switch-nvk
+
+      - name: Build and package NVK
+        shell: bash
+        run: |
+          cd external/switch-nvk
+          ./build-native-tools.sh
+          ./build-std-sysroot.sh
+          ./configure-mesa.sh
+          meson compile -C mb
+          ./package-nvk.sh
+
+      - name: Build re4-switch
+        shell: bash
+        run: |
+          make NVK_SWITCH="$GITHUB_WORKSPACE/external/switch-nvk/nvk-switch"
+
+      - name: Upload NRO
+        uses: actions/upload-artifact@v4
+        with:
+          name: re4-switch-nro
+          path: re4-switch.nro
+          if-no-files-found: error
