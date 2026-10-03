@@ -1,0 +1,15 @@
+build/
+*.elf
+*.nro
+*.nacp
+*.nso
+*.npdm
+*.o
+*.d
+*.a
+.DS_Store
+.vscode/
+.idea/
+external/switch-nvk/mesa-25/
+external/switch-nvk/mb/
+external/switch-nvk/native-prefix/
